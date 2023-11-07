@@ -33,18 +33,30 @@ const Home = ({correoUsuario,idusario}) => {
 
     }
 
+    //Funcion para actualizar o guardar los datos
     const guradarDatos = async (evento) =>  {
         evento.preventDefault();
-        console.log('Procucto a anviar a la DB',producto);
-        try {
-            const reference = collection(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos')
-            // const reference3 = collection(db,'users','GvdXGaH0K0rKBnDyi9213123','shopping_lists')
-            await addDoc(reference,{...producto})
-            // await addDoc(reference3,{nombre:'galeria'})
-            console.log('Producto enviado');
-        } catch (error) {
-            console.log(error);
+        if (idToUpdate === '') { // si idToUpdate == '' está vacia, no estoy actualizando nada
+            try {
+                console.log('Procucto a guardar a la DB',producto);
+                const reference = collection(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos')
+                // const reference3 = collection(db,'users','GvdXGaH0K0rKBnDyi9213123','shopping_lists')
+                await addDoc(reference,{...producto})
+                // await addDoc(reference3,{nombre:'galeria'})
+                console.log('Producto enviado');
+            } catch (error) {
+                console.log(error);
+            }
+        }else{ // Algo voy a actualizar
+            console.log('Procucto a actualizar a la DB',producto);
+            const reference = doc(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos',idToUpdate)
+            await setDoc(reference,{...producto})
+            console.log('Producto actualizado!!!');
+            
         }
+
+        // ME da ganas deponer uno dentro de cada correspondencia : setIdToUpdate('') despuesd que se actualice y así...
+        setIdToUpdate('')
         setdeleUpdate(!deleUpdate)
         setProducto({...valorInicial})
     }
@@ -122,7 +134,7 @@ const Home = ({correoUsuario,idusario}) => {
                 <div className="row"> 
                     {/* El formulario */}
                     <div className="col-md-4"> 
-                        <h3 className="text-center mb-3">Ingresa datos de usuario</h3>
+                        <h3 className="text-center mb-3"> {idToUpdate === ''? 'Ingresa datos del nuevo producto' : 'Actualizar Datos del producto'} </h3>
                         <form onSubmit={guradarDatos}>
                             <div className="card card-body">
 
@@ -138,7 +150,7 @@ const Home = ({correoUsuario,idusario}) => {
                                 </div>
 
                                 <button className="btn btn-primary">
-                                    Guardar
+                                    {idToUpdate === ''? 'Agregar producto' : 'Actualizar producto'}
                                 </button>
 
                             </div>

@@ -21,7 +21,7 @@ const Login = () => {
 
             try {
                 await createUserWithEmailAndPassword(auth, correo, contraseña)
-                createNewStructureUser
+                createNewStructureUser(user.uid)
             } catch (error) {
                 console.log({error});
                 console.log(error.customData._tokenResponse.error.message);

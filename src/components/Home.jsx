@@ -8,7 +8,7 @@ import {getFirestore,collection,addDoc,getDocs,getDoc,doc, setDoc,deleteDoc} fro
 
 const auth = getAuth(app);
 
-const Home = ({correoUsuario,idusario}) => {
+const Home = ({correoUsuario,idusario,displayName}) => {
 
     //PAra el formulario 
     const valorInicial = { // PAra REsetear, etc.
@@ -36,14 +36,20 @@ const Home = ({correoUsuario,idusario}) => {
     //Funcion para actualizar o guardar los datos
     const guradarDatos = async (evento) =>  {
         evento.preventDefault();
+        
         if (idToUpdate === '') { // si idToUpdate == '' está vacia, no estoy actualizando nada
             try {
                 console.log('Procucto a guardar a la DB',producto);
                 const reference = collection(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos')
                 // const reference3 = collection(db,'users','GvdXGaH0K0rKBnDyi9213123','shopping_lists')
-                await addDoc(reference,{...producto})
-                // await addDoc(reference3,{nombre:'galeria'})
-                console.log('Producto enviado');
+                if (producto.cantidad !== '' && producto.precio !== '' && producto.nombre !== '' ) { // Validar qu ele producto no sea una cadena vacia
+                    await addDoc(reference,{...producto})
+                    // await addDoc(reference3,{nombre:'galeria'})
+                    console.log('Producto enviado');  
+                }else{
+                    console.log('No agregues productos en blanco');
+                }
+                
             } catch (error) {
                 console.log(error);
             }
@@ -129,8 +135,8 @@ const Home = ({correoUsuario,idusario}) => {
     return(
 
         <div className="container">
-            <p>Hola  <strong>{correoUsuario}</strong> Haz iniciado sesion <strong>{idusario}</strong></p>
-
+            <p> Hola {displayName}  <strong> {correoUsuario} </strong> Haz iniciado sesion <strong>{idusario}</strong></p>
+            {displayName}
             <button className="btn btn-primary" onClick={()=>signOut(auth)}> 
                 Cerrar sesion
             </button>

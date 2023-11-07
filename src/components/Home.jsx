@@ -90,6 +90,11 @@ const Home = ({correoUsuario,idusario}) => {
         await deleteDoc(doc(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos',id))
         console.log('Deletado');
         setdeleUpdate(!deleUpdate)
+
+        // Bug: Cuando voy a editar un producto, y antes de editarlo lo elimino, debo limpiar el formulario
+        if (id===idToUpdate) {
+            setProducto(valorInicial)
+        }
     }
 
 

@@ -119,9 +119,12 @@ const Home = ({correoUsuario,idusario}) => {
     },[idToUpdate]) // Si idToUpdate cambia, hacemos peticion
 
 
-    
 
-
+    const mystyle = {
+       'max-height': "400px",
+       'overflow-y': "auto",
+      };
+   
 
     return(
 
@@ -136,10 +139,15 @@ const Home = ({correoUsuario,idusario}) => {
 
             <div>
 
-                <div className="row"> 
+                <div className="row justify-content-around"> 
+
+                    <div className="col-md-3  border border-primary">
+                        <h4>Listas de compras</h4>
+                    </div>
+
                     {/* El formulario */}
-                    <div className="col-md-4"> 
-                        <h3 className="text-center mb-3"> {idToUpdate === ''? 'Ingresa datos del nuevo producto' : 'Actualizar Datos del producto'} </h3>
+                    <div className="col-md-3 border border-primary"> 
+                        <h4 className="text-center mb-3"> {idToUpdate === ''? 'Ingresa datos del nuevo producto' : 'Actualizar Datos del producto'} </h4>
                         <form onSubmit={guradarDatos}>
                             <div className="card card-body">
 
@@ -154,8 +162,13 @@ const Home = ({correoUsuario,idusario}) => {
 
                                 </div>
 
-                                <button className="btn btn-primary">
+                                <button className="btn btn-primary mb-3">
                                     {idToUpdate === ''? 'Agregar producto' : 'Actualizar producto'}
+                                </button>
+                                
+                                <button className={ idToUpdate === ''? '.d-none border-0' : "btn btn-primary"}>
+                                   
+                                    { idToUpdate === '' ? '' : " Cancelar actualización"}
                                 </button>
 
                             </div>
@@ -165,11 +178,11 @@ const Home = ({correoUsuario,idusario}) => {
                     </div>
 
                     {/* Lista de productos */}
-                    <div className="col-md-8">
-                        <h3 className="text-center">Lista de productos</h3>
+                    <div className="col-md-4 border border-primary">
+                        <h4 className="text-center">Lista de productos</h4>
 
                         <div className="container card">
-                            <div className="card-body  ">
+                            <div className="card-body " style={mystyle}>
                                 {
                                     listaProductos.map(product => (
                                         <div key={product.id}>
@@ -184,6 +197,8 @@ const Home = ({correoUsuario,idusario}) => {
                                             >
                                                 Update
                                             </button>
+
+                                            
 
                                             <hr />
                                         </div>

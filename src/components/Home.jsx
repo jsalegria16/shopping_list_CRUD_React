@@ -20,7 +20,8 @@ const Home = ({correoUsuario,idusario}) => {
     //Variables de estado
     const [producto,setProducto] = useState(valorInicial) // EStado. COntext? //Producto a enviar
     const [listaProductos, setListaProductos] = useState([]) // Para traer la lista de productos
-    const [deleUpdate, setdeleUpdate] = useState(true) // Para traer la lista de productos
+    const [deleUpdate, setdeleUpdate] = useState(true) // Para el use effect cada vez que la DB cambia 
+    const [idToUpdate, setIdToUpdate] =  useState('')
 
 
     // Funciones formulario
@@ -72,12 +73,36 @@ const Home = ({correoUsuario,idusario}) => {
     },[deleUpdate])
 
 
-    // Funciones crud
+    // Funciones crud - delete
     const deleteProduct = async (id) =>{
         await deleteDoc(doc(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos',id))
         console.log('Deletado');
         setdeleUpdate(!deleUpdate)
     }
+
+
+    // Funciones crud - update - Solo un documento.
+    //con getTheOneToUpdate y el useeffcet siguiente, seteo al formulario los valores del producto que quier actualizar
+    const getTheOneToUpdate = async (id) => {
+        try {
+            const reference = doc(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos',id)
+            const DocFromDb = await getDoc(reference)
+            console.log('Vamos a setear al formulario esto: ', DocFromDb.data());
+            setProducto(DocFromDb.data())
+        } catch (error) {
+            console.log({error});
+        }
+    }
+    useEffect(()=>{
+
+        if (idToUpdate !== '') { //Si no está vacio
+            getTheOneToUpdate(idToUpdate)
+        }
+
+    },[idToUpdate]) // Si idToUpdate cambia, hacemos peticion
+
+
+    
 
 
 
@@ -136,7 +161,12 @@ const Home = ({correoUsuario,idusario}) => {
                                             <p>cantidad: {product.cantidad}</p>
 
                                             <button className="btn btn-danger" onClick={()=>deleteProduct(product.id)}>Delete</button>
-                                            <button className="btn btn-success m-1">Update</button>
+                                            <button className="btn btn-success m-1" 
+                                                onClick={()=>setIdToUpdate(product.id)} 
+                                                // ID Para actualizar en producti
+                                            >
+                                                Update
+                                            </button>
 
                                             <hr />
                                         </div>

@@ -4,11 +4,16 @@ import {db,app } from '../Firebase/credenciales'
 import {getAuth, signOut } from 'firebase/auth'
 
 import {getFirestore,collection,addDoc,getDocs,getDoc,doc, setDoc,deleteDoc} from 'firebase/firestore'
+import { GlobalContext } from "../Context";
+
+import './shoppingList.css' 
 
 
 const auth = getAuth(app);
 
 const Home = ({correoUsuario,idusario}) => {
+
+    const {usuario}= React.useContext(GlobalContext)
 
     //PAra el formulario 
     const valorInicial = { // PAra REsetear, etc.
@@ -21,8 +26,33 @@ const Home = ({correoUsuario,idusario}) => {
     const [producto,setProducto] = useState(valorInicial) // EStado. COntext? //Producto a enviar
     const [listaProductos, setListaProductos] = useState([]) // Para traer la lista de productos
     const [deleUpdate, setdeleUpdate] = useState(true) // Para el use effect cada vez que la DB cambia 
-    const [idToUpdate, setIdToUpdate] =  useState('')
+    const [idToUpdate, setIdToUpdate] =  useState('') // PAra identificar el ID del producto que voy a actualizar
 
+    const [listaShoppingLists, setListaShoppingLists] = useState([]) // Para traer la lista de productos
+    const [actualShoppingList, setActualShoppingList] = useState('Random-SL-ID-DF');
+
+     // Funcion para traer las shopping list y setear la actual category
+
+     useEffect(()=>{
+        const getListaShoppingLists = async() => {
+            try {
+                const referencia = collection(db,'users',usuario.uid,'shopping_lists')
+                const dataFromDb = await getDocs(referencia)
+                const shoppingLists = []
+                dataFromDb.forEach((data) =>{
+                    shoppingLists.push({...data.data(),id:data.id}) 
+                })
+                setListaShoppingLists(shoppingLists)
+                            
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        getListaShoppingLists() // Esta declaracion de la finc es la forma correcta :)
+        
+
+    },[])
 
     // Funciones formulario
     const capturarInputs = (evento) => {
@@ -40,7 +70,7 @@ const Home = ({correoUsuario,idusario}) => {
         if (idToUpdate === '') { // si idToUpdate == '' está vacia, no estoy actualizando nada
             try {
                 console.log('Procucto a guardar a la DB',producto);
-                const reference = collection(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos')
+                const reference = collection(db,'users',usuario.uid,'shopping_lists',actualShoppingList,'productos')
                 // const reference3 = collection(db,'users','GvdXGaH0K0rKBnDyi9213123','shopping_lists')
                 if (producto.cantidad !== '' && producto.precio !== '' && producto.nombre !== '' ) { // Validar qu ele producto no sea una cadena vacia
                     await addDoc(reference,{...producto})
@@ -55,7 +85,7 @@ const Home = ({correoUsuario,idusario}) => {
             }
         }else{ // Algo voy a actualizar
             console.log('Procucto a actualizar a la DB',producto);
-            const reference = doc(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos',idToUpdate)
+            const reference = doc(db,'users',usuario.uid,'shopping_lists',actualShoppingList,'productos',idToUpdate)
             await setDoc(reference,{...producto})
             console.log('Producto actualizado!!!');
             
@@ -72,7 +102,7 @@ const Home = ({correoUsuario,idusario}) => {
     useEffect(()=>{
         const getListaProductos = async() => {
             try {
-                const referencia = collection(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos')
+                const referencia = collection(db,'users',usuario.uid,'shopping_lists',actualShoppingList,'productos')
                 const dataFromDb = await getDocs(referencia)
                 const products = []
                 dataFromDb.forEach((data) =>{
@@ -88,12 +118,13 @@ const Home = ({correoUsuario,idusario}) => {
 
         getListaProductos() // Esta declaracion de la finc es la forma correcta :)
 
-    },[deleUpdate])
+    },[deleUpdate,actualShoppingList])
 
 
     // Funciones crud - delete
     const deleteProduct = async (id) =>{
-        await deleteDoc(doc(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos',id))
+        console.log('Estoy entrando?');
+        await deleteDoc(doc(db,'users',usuario.uid,'shopping_lists',actualShoppingList,'productos',id))
         console.log('Deletado');
         setdeleUpdate(!deleUpdate)
 
@@ -108,7 +139,7 @@ const Home = ({correoUsuario,idusario}) => {
     //con getTheOneToUpdate y el useeffcet siguiente, seteo al formulario los valores del producto que quier actualizar
     const getTheOneToUpdate = async (id) => {
         try {
-            const reference = doc(db,'users','GvdXGaH0K0rKBnDyi9Xo','shopping_lists','WdKlanSDHojLwTDWAPxZ','productos',id)
+            const reference = doc(db,'users',usuario.uid,'shopping_lists',actualShoppingList,'productos',id)
             const DocFromDb = await getDoc(reference)
             console.log('Vamos a setear al formulario esto: ', DocFromDb.data());
             setProducto(DocFromDb.data())
@@ -126,16 +157,24 @@ const Home = ({correoUsuario,idusario}) => {
 
 
 
+   
+
+
     const mystyle = {
+        'height': "400px",
        'max-height': "400px",
        'overflow-y': "auto",
       };
+
+      const mystyle1 = {
+        'cursor': 'pointer'
+       };
    
 
     return(
 
         <div className="container">
-            <p> Hola <strong> {correoUsuario} </strong> Haz iniciado sesion <strong>{idusario}</strong></p>
+            <p> Hola <strong> {usuario.email} </strong> Haz iniciado sesion con UID <strong>{usuario.uid}</strong></p>
             <button className="btn btn-primary" onClick={()=>signOut(auth)}> 
                 Cerrar sesion
             </button>
@@ -146,12 +185,30 @@ const Home = ({correoUsuario,idusario}) => {
 
                 <div className="row justify-content-around"> 
 
-                    <div className="col-md-3  border border-primary">
+                    <div className="col-md-3  border border-primary d-flex flex-column align-items-center">
                         <h4>Listas de compras</h4>
+                        <div className="container card">
+                            <div className="card-body " style={mystyle}>
+                                    {
+                                        listaShoppingLists.map(product => (
+                                            <div key={product.id} style={mystyle1} onClick={()=>{setActualShoppingList(product.id);console.log(actualShoppingList);}}
+                                                className={`CategoryItem ${product.id === actualShoppingList ? 'isActualCategory' : '' }`}
+                                            >
+                                                <p>Lista de compras: {product.nombre_lista} </p>
+                                                <hr />
+                                            </div>
+
+                                            
+                                        ))
+
+                                    }
+
+                            </div>
+                        </div>
                     </div>
 
                     {/* El formulario */}
-                    <div className="col-md-3 border border-primary"> 
+                    <div className="col-md-3 border border-primary d-flex flex-column"> 
                         <h4 className="text-center mb-3"> {idToUpdate === ''? 'Ingresa datos del nuevo producto' : 'Actualizar Datos del producto'} </h4>
                         <form onSubmit={guradarDatos}>
                             <div className="card card-body">
@@ -171,20 +228,25 @@ const Home = ({correoUsuario,idusario}) => {
                                     {idToUpdate === ''? 'Agregar producto' : 'Actualizar producto'}
                                 </button>
                                 
-                                <button className={ idToUpdate === ''? '.d-none border-0' : "btn btn-primary"}>
-                                   
-                                    { idToUpdate === '' ? '' : " Cancelar actualización"}
-                                </button>
-
+                                
                             </div>
 
 
                         </form>
+
+                        <button className={ idToUpdate === ''? '.d-none border-0' : "btn btn-primary mt-1"}
+                            onClick={()=>{setIdToUpdate('');setProducto({...valorInicial})}}
+                        >
+                                   
+                            { idToUpdate === '' ? '' : " Cancelar actualización"}
+
+                        </button>
+
                     </div>
 
                     {/* Lista de productos */}
                     <div className="col-md-4 border border-primary">
-                        <h4 className="text-center">Lista de productos</h4>
+                        <h4 className="text-center">Lista de productos en <strong></strong></h4>
 
                         <div className="container card">
                             <div className="card-body " style={mystyle}>

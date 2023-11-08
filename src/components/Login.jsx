@@ -12,7 +12,7 @@ const auth = getAuth(app)
 
 const Login = () => {
 
-    const {usuario,setUsuario}= React.useContext(GlobalContext)
+    const {usuario}= React.useContext(GlobalContext)
     const [registro, setRegistro] = useState(false)
 
     const handlerSubmit = async(e)=>{

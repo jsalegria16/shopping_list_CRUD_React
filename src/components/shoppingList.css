@@ -1,0 +1,19 @@
+
+
+.TodoCategoryList li{
+
+    cursor: pointer;
+
+}
+
+.CategoryItem:hover{
+
+    background: rgb(156, 113, 197);
+
+}
+
+.isActualCategory{
+    background: #0000ff1f;
+    font-weight: bolder;
+}
+

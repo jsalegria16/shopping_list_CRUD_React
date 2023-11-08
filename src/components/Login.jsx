@@ -4,12 +4,15 @@ import Uno from '../assets/1.png'
 import Dos from '../assets/2.png'
 import Tres from '../assets/3.png'
 
-import {app} from '../credenciales'
+import {app} from '../Firebase/credenciales'
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth'
+import { CreateNewUser } from '../Firebase/CreateUser'
+import { GlobalContext } from '../Context'
 const auth = getAuth(app)
 
 const Login = () => {
 
+    const {usuario,setUsuario}= React.useContext(GlobalContext)
     const [registro, setRegistro] = useState(false)
 
     const handlerSubmit = async(e)=>{
@@ -20,8 +23,21 @@ const Login = () => {
         if(registro){ //REgister
 
             try {
-                await createUserWithEmailAndPassword(auth, correo, contraseña)
-                createNewStructureUser(user.uid)
+                // await createUserWithEmailAndPassword(auth, correo, contraseña)
+                createUserWithEmailAndPassword(auth, correo, contraseña).then((resolve) =>{
+                    console.log('Lo que me regresa la promesa: ', resolve);
+                    console.log('El UID del nuevo usuario creado: ',resolve._tokenResponse.localId);
+                    const UID = resolve._tokenResponse.localId;
+                    const email = resolve._tokenResponse.email
+                    CreateNewUser(UID,email)
+                }).catch((error) =>{
+                    console.log(error);
+                    console.log('Estoy en el catch del then');
+                    console.log(error.customData._tokenResponse.error.message);
+                    if (error.customData._tokenResponse.error.message === 'EMAIL_EXISTS') {
+                        console.log('Nop, ya existe un usuario');
+                    }
+                })
             } catch (error) {
                 console.log({error});
                 console.log(error.customData._tokenResponse.error.message);
@@ -29,8 +45,6 @@ const Login = () => {
                     console.log('Nop, ya existe un usuario');
                 }
             }
-           
-
         }
         else{ //Login  
 

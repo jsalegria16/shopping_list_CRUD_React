@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import {db,app } from '../credenciales'
+import {db,app } from '../Firebase/credenciales'
 import {getAuth, signOut } from 'firebase/auth'
 
 import {getFirestore,collection,addDoc,getDocs,getDoc,doc, setDoc,deleteDoc} from 'firebase/firestore'
@@ -8,7 +8,7 @@ import {getFirestore,collection,addDoc,getDocs,getDoc,doc, setDoc,deleteDoc} fro
 
 const auth = getAuth(app);
 
-const Home = ({correoUsuario,idusario,displayName}) => {
+const Home = ({correoUsuario,idusario}) => {
 
     //PAra el formulario 
     const valorInicial = { // PAra REsetear, etc.
@@ -135,8 +135,7 @@ const Home = ({correoUsuario,idusario,displayName}) => {
     return(
 
         <div className="container">
-            <p> Hola {displayName}  <strong> {correoUsuario} </strong> Haz iniciado sesion <strong>{idusario}</strong></p>
-            {displayName}
+            <p> Hola <strong> {correoUsuario} </strong> Haz iniciado sesion <strong>{idusario}</strong></p>
             <button className="btn btn-primary" onClick={()=>signOut(auth)}> 
                 Cerrar sesion
             </button>

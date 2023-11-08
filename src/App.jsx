@@ -17,7 +17,7 @@ import {GlobalContext } from './Context'
 
 function App() {
 
-  const {item,saveItems,usuario}= React.useContext(GlobalContext)
+  const {usuario}= React.useContext(GlobalContext)
 
   console.log(usuario);
 
@@ -30,7 +30,6 @@ function App() {
       {usuario ? <Home 
                     correoUsuario={usuario.email} 
                     idusario={usuario.uid} 
-                    displayNAme = {usuario.displayName}
                      
                   /> : <Login/>}  
     </div>      

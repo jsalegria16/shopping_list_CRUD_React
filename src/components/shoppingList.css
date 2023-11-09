@@ -8,12 +8,20 @@
 
 .CategoryItem:hover{
 
-    background: rgb(156, 113, 197);
+    background: #0000ff1f;
+    
 
 }
 
+.CategoryItem{
+    text-align: center;
+    border: black ;
+    border-radius: 5px;
+}
+
 .isActualCategory{
-    background: #0000ff1f;
+    background: rgb(156, 113, 197);
+    
     font-weight: bolder;
 }
 

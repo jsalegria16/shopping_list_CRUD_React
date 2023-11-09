@@ -11,9 +11,9 @@ const InitialShoppingList = {nombre_lista : 'galeria'}
 const InitialShoppingList2 = {nombre_lista : 'supermercado'}
 const InitialShoppingList3 = {nombre_lista : 'otros'}
 
-const InitialProduct= {cantidad : 2, nombre:'My producto', precio: 3500}
-const InitialProduct2= {cantidad : 2, nombre:'My producto2', precio: 3500}
-const InitialProduct3= {cantidad : 2, nombre:'My producto3', precio: 3500}
+const InitialProduct= {cantidad : 2, nombre:'My producto galeria', precio: 3500}
+const InitialProduct2= {cantidad : 2, nombre:'My producto supermercad0', precio: 3500}
+const InitialProduct3= {cantidad : 2, nombre:'My producto otros', precio: 3500}
 
 
 

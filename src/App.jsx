@@ -18,10 +18,6 @@ import {GlobalContext } from './Context'
 function App() {
 
   const {usuario}= React.useContext(GlobalContext)
-
-  console.log(usuario);
-
-
   
   
 

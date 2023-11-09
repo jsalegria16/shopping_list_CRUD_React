@@ -21,30 +21,21 @@ const Login = () => {
         const contraseña = e.target.contraseña.value;
         
         if(registro){ //REgister
-
-            try {
-                // await createUserWithEmailAndPassword(auth, correo, contraseña)
-                createUserWithEmailAndPassword(auth, correo, contraseña).then((resolve) =>{
-                    console.log('Lo que me regresa la promesa: ', resolve);
-                    console.log('El UID del nuevo usuario creado: ',resolve._tokenResponse.localId);
-                    const UID = resolve._tokenResponse.localId;
-                    const email = resolve._tokenResponse.email
-                    CreateNewUser(UID,email)
-                }).catch((error) =>{
-                    console.log(error);
-                    console.log('Estoy en el catch del then');
-                    console.log(error.customData._tokenResponse.error.message);
-                    if (error.customData._tokenResponse.error.message === 'EMAIL_EXISTS') {
-                        console.log('Nop, ya existe un usuario');
-                    }
-                })
-            } catch (error) {
-                console.log({error});
+            // await createUserWithEmailAndPassword(auth, correo, contraseña)
+            createUserWithEmailAndPassword(auth, correo, contraseña).then((resolve) =>{
+                console.log('Lo que me regresa la promesa en el registro: ', resolve);
+                console.log('El UID del nuevo usuario creado: ',resolve._tokenResponse.localId);
+                const UID = resolve._tokenResponse.localId;
+                const email = resolve._tokenResponse.email
+                CreateNewUser(UID,email)
+            }).catch((error) =>{
+                console.log(error);
+                console.log('Estoy en el catch del then');
                 console.log(error.customData._tokenResponse.error.message);
                 if (error.customData._tokenResponse.error.message === 'EMAIL_EXISTS') {
                     console.log('Nop, ya existe un usuario');
                 }
-            }
+            })
         }
         else{ //Login  
 

@@ -25,14 +25,15 @@ const Home = ({correoUsuario,idusario}) => {
     //Variables de estado
     const [producto,setProducto] = useState(valorInicial) // EStado. COntext? //Producto a enviar
     const [listaProductos, setListaProductos] = useState([]) // Para traer la lista de productos
+
     const [deleUpdate, setdeleUpdate] = useState(true) // Para el use effect cada vez que la DB cambia 
+
     const [idToUpdate, setIdToUpdate] =  useState('') // PAra identificar el ID del producto que voy a actualizar
 
     const [listaShoppingLists, setListaShoppingLists] = useState([]) // Para traer la lista de productos
-    const [actualShoppingList, setActualShoppingList] = useState('Random-SL-ID-DF');
+    const [actualShoppingList, setActualShoppingList] = useState({id:'Random-SL-ID-DF',nombre_lista:'Galeria'});
 
      // Funcion para traer las shopping list y setear la actual category
-
      useEffect(()=>{
         const getListaShoppingLists = async() => {
             try {
@@ -48,11 +49,9 @@ const Home = ({correoUsuario,idusario}) => {
                 console.log(error);
             }
         }
-
-        getListaShoppingLists() // Esta declaracion de la finc es la forma correcta :)
-        
-
-    },[])
+        getListaShoppingLists()
+    },[actualShoppingList,listaShoppingLists])
+       
 
     // Funciones formulario
     const capturarInputs = (evento) => {
@@ -70,7 +69,7 @@ const Home = ({correoUsuario,idusario}) => {
         if (idToUpdate === '') { // si idToUpdate == '' está vacia, no estoy actualizando nada
             try {
                 console.log('Procucto a guardar a la DB',producto);
-                const reference = collection(db,'users',usuario.uid,'shopping_lists',actualShoppingList,'productos')
+                const reference = collection(db,'users',usuario.uid,'shopping_lists',actualShoppingList.id,'productos')
                 // const reference3 = collection(db,'users','GvdXGaH0K0rKBnDyi9213123','shopping_lists')
                 if (producto.cantidad !== '' && producto.precio !== '' && producto.nombre !== '' ) { // Validar qu ele producto no sea una cadena vacia
                     await addDoc(reference,{...producto})
@@ -85,7 +84,7 @@ const Home = ({correoUsuario,idusario}) => {
             }
         }else{ // Algo voy a actualizar
             console.log('Procucto a actualizar a la DB',producto);
-            const reference = doc(db,'users',usuario.uid,'shopping_lists',actualShoppingList,'productos',idToUpdate)
+            const reference = doc(db,'users',usuario.uid,'shopping_lists',actualShoppingList.id,'productos',idToUpdate)
             await setDoc(reference,{...producto})
             console.log('Producto actualizado!!!');
             
@@ -102,7 +101,9 @@ const Home = ({correoUsuario,idusario}) => {
     useEffect(()=>{
         const getListaProductos = async() => {
             try {
-                const referencia = collection(db,'users',usuario.uid,'shopping_lists',actualShoppingList,'productos')
+                console.log('Entro a mostrar datos con SL ', actualShoppingList);
+                console.log('Entro a mostrar datos con user ', usuario.uid);
+                const referencia = collection(db,'users',usuario.uid,'shopping_lists',actualShoppingList.id,'productos')
                 const dataFromDb = await getDocs(referencia)
                 const products = []
                 dataFromDb.forEach((data) =>{
@@ -113,18 +114,19 @@ const Home = ({correoUsuario,idusario}) => {
                 
             } catch (error) {
                 console.log(error);
+                console.log('Hay algún error');
             }
         }
 
         getListaProductos() // Esta declaracion de la finc es la forma correcta :)
 
-    },[deleUpdate,actualShoppingList])
+    },[deleUpdate,actualShoppingList])//listaShoppingLists
 
 
     // Funciones crud - delete
     const deleteProduct = async (id) =>{
         console.log('Estoy entrando?');
-        await deleteDoc(doc(db,'users',usuario.uid,'shopping_lists',actualShoppingList,'productos',id))
+        await deleteDoc(doc(db,'users',usuario.uid,'shopping_lists',actualShoppingList.id,'productos',id))
         console.log('Deletado');
         setdeleUpdate(!deleUpdate)
 
@@ -139,7 +141,7 @@ const Home = ({correoUsuario,idusario}) => {
     //con getTheOneToUpdate y el useeffcet siguiente, seteo al formulario los valores del producto que quier actualizar
     const getTheOneToUpdate = async (id) => {
         try {
-            const reference = doc(db,'users',usuario.uid,'shopping_lists',actualShoppingList,'productos',id)
+            const reference = doc(db,'users',usuario.uid,'shopping_lists',actualShoppingList.id,'productos',id)
             const DocFromDb = await getDoc(reference)
             console.log('Vamos a setear al formulario esto: ', DocFromDb.data());
             setProducto(DocFromDb.data())
@@ -191,10 +193,10 @@ const Home = ({correoUsuario,idusario}) => {
                             <div className="card-body " style={mystyle}>
                                     {
                                         listaShoppingLists.map(product => (
-                                            <div key={product.id} style={mystyle1} onClick={()=>{setActualShoppingList(product.id);console.log(actualShoppingList);}}
-                                                className={`CategoryItem ${product.id === actualShoppingList ? 'isActualCategory' : '' }`}
+                                            <div key={product.id} style={mystyle1} onClick={()=>{setActualShoppingList({id:product.id,nombre_lista:product.nombre_lista});console.log('Fijo un anueva ACtual SL',actualShoppingList);}}
+                                                className={`CategoryItem ${product.id === actualShoppingList.id ? 'isActualCategory' : '' }`}
                                             >
-                                                <p>Lista de compras: {product.nombre_lista} </p>
+                                                <p> {product.nombre_lista} </p>
                                                 <hr />
                                             </div>
 
@@ -209,7 +211,7 @@ const Home = ({correoUsuario,idusario}) => {
 
                     {/* El formulario */}
                     <div className="col-md-3 border border-primary d-flex flex-column"> 
-                        <h4 className="text-center mb-3"> {idToUpdate === ''? 'Ingresa datos del nuevo producto' : 'Actualizar Datos del producto'} </h4>
+                        <h4 className="text-center mb-3"> {idToUpdate === ''? `Ingresa datos del nuevo producto de la lista ${actualShoppingList.nombre_lista}` : `Actualizar Datos del producto`} </h4>
                         <form onSubmit={guradarDatos}>
                             <div className="card card-body">
 
@@ -246,7 +248,7 @@ const Home = ({correoUsuario,idusario}) => {
 
                     {/* Lista de productos */}
                     <div className="col-md-4 border border-primary">
-                        <h4 className="text-center">Lista de productos en <strong></strong></h4>
+                        <h4 className="text-center">Lista de productos en {actualShoppingList.nombre_lista} <strong></strong></h4>
 
                         <div className="container card">
                             <div className="card-body " style={mystyle}>

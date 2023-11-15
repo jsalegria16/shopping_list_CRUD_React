@@ -32,9 +32,19 @@ const CreateNewUser = async (uid,email) => { // Vamos a abstraer cosas
     await setDoc(doc(db,'users',uid,'shopping_lists', "Random-SL-ID-DF1",'productos','Random-Product-ID-DF1'), InitialProduct2);
     await setDoc(doc(db,'users',uid,'shopping_lists', "Random-SL-ID-DF2",'productos','Random-Product-ID-DF2'), InitialProduct3);
     
+    console.log('hecho');
 
 }
 
 
 
 export {CreateNewUser}; 
+
+// const firebaseConfig = {
+//     apiKey: "AIzaSyAfL6DU5ObKvguAgMDCHLOEEvMGLt5aGg4",
+//     authDomain: "listacompras-f9f36.firebaseapp.com",
+//     projectId: "listacompras-f9f36",
+//     storageBucket: "listacompras-f9f36.appspot.com",
+//     messagingSenderId: "714321085868",
+//     appId: "1:714321085868:web:b7d3bf5a7db15dd9f96609"
+//   };

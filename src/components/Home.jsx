@@ -13,7 +13,7 @@ const auth = getAuth(app);
 
 const Home = ({correoUsuario,idusario}) => {
 
-    const {usuario}= React.useContext(GlobalContext)
+    const {usuario,}= React.useContext(GlobalContext)
 
     //PAra el formulario 
     const valorInicial = { // PAra REsetear, etc.
@@ -33,7 +33,14 @@ const Home = ({correoUsuario,idusario}) => {
     const [listaShoppingLists, setListaShoppingLists] = useState([]) // Para traer la lista de productos
     const [actualShoppingList, setActualShoppingList] = useState({id:'Random-SL-ID-DF',nombre_lista:'Galeria'});
 
-     // Funcion para traer las shopping list y setear la actual category
+
+    const [CampoVacio, setCampoVacio] = useState(false) // Para el use effect cada vez que la DB cambia 
+
+
+
+
+
+     // Funcion para traer las shopping list y setear la actual.
      useEffect(()=>{
         const getListaShoppingLists = async() => {
             try {
@@ -44,13 +51,15 @@ const Home = ({correoUsuario,idusario}) => {
                     shoppingLists.push({...data.data(),id:data.id}) 
                 })
                 setListaShoppingLists(shoppingLists)
+                console.log('Obtengo algo? ', listaShoppingLists );
                             
             } catch (error) {
                 console.log(error);
             }
         }
         getListaShoppingLists()
-    },[actualShoppingList,listaShoppingLists])
+        console.log('Obtengo algo? ', listaShoppingLists );
+    },[actualShoppingList,])//listaShoppingLists
        
 
     // Funciones formulario
@@ -72,25 +81,37 @@ const Home = ({correoUsuario,idusario}) => {
                 const reference = collection(db,'users',usuario.uid,'shopping_lists',actualShoppingList.id,'productos')
                 // const reference3 = collection(db,'users','GvdXGaH0K0rKBnDyi9213123','shopping_lists')
                 if (producto.cantidad !== '' && producto.precio !== '' && producto.nombre !== '' ) { // Validar qu ele producto no sea una cadena vacia
+                    //FAlta validar
                     await addDoc(reference,{...producto})
                     // await addDoc(reference3,{nombre:'galeria'})
                     console.log('Producto enviado');  
+                    setCampoVacio(false);
                 }else{
                     console.log('No agregues productos en blanco');
+                    setCampoVacio(true);
                 }
                 
             } catch (error) {
                 console.log(error);
             }
         }else{ // Algo voy a actualizar
-            console.log('Procucto a actualizar a la DB',producto);
-            const reference = doc(db,'users',usuario.uid,'shopping_lists',actualShoppingList.id,'productos',idToUpdate)
-            await setDoc(reference,{...producto})
-            console.log('Producto actualizado!!!');
+
+            if (producto.cantidad !== '' && producto.precio !== '' && producto.nombre !== '' ) {
+                console.log('Procucto a actualizar a la DB',producto);
+                const reference = doc(db,'users',usuario.uid,'shopping_lists',actualShoppingList.id,'productos',idToUpdate)
+                await setDoc(reference,{...producto})
+                console.log('Producto actualizado!!!');
+                setCampoVacio(false)
+            }else{
+                console.log('No agregues productos en blanco');
+                setCampoVacio(true);
+            }
+
+            
             
         }
 
-        // ME da ganas deponer uno dentro de cada correspondencia : setIdToUpdate('') despuesd que se actualice y así...
+        //deponer ? uno dentro de cada correspondencia : setIdToUpdate('') despues de que se actualice y así...
         setIdToUpdate('')
         setdeleUpdate(!deleUpdate)
         setProducto({...valorInicial})
@@ -120,7 +141,7 @@ const Home = ({correoUsuario,idusario}) => {
 
         getListaProductos() // Esta declaracion de la finc es la forma correcta :)
 
-    },[deleUpdate,actualShoppingList])//listaShoppingLists
+    },[deleUpdate,actualShoppingList,deleUpdate])//listaShoppingLists
 
 
     // Funciones crud - delete
@@ -149,6 +170,8 @@ const Home = ({correoUsuario,idusario}) => {
             console.log({error});
         }
     }
+
+
     useEffect(()=>{
 
         if (idToUpdate !== '') { //Si no está vacio
@@ -158,19 +181,15 @@ const Home = ({correoUsuario,idusario}) => {
     },[idToUpdate]) // Si idToUpdate cambia, hacemos peticion
 
 
-
-   
-
-
     const mystyle = {
         'height': "400px",
        'max-height': "400px",
        'overflow-y': "auto",
       };
 
-      const mystyle1 = {
+    const mystyle1 = {
         'cursor': 'pointer'
-       };
+    };
    
 
     return(
@@ -212,6 +231,15 @@ const Home = ({correoUsuario,idusario}) => {
                     {/* El formulario */}
                     <div className="col-md-3 border border-primary d-flex flex-column"> 
                         <h4 className="text-center mb-3"> {idToUpdate === ''? `Ingresa datos del nuevo producto de la lista ${actualShoppingList.nombre_lista}` : `Actualizar Datos del producto`} </h4>
+                        { CampoVacio == true ? 
+                        <>
+                            <div className="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>Campos vacios!</strong> Intentalo nuevamente.
+                            <button type="button" className="close" data-dismiss="alert" aria-label="Close" onClick={()=>{setCampoVacio(false)}}>
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            </div>
+                        </>: ''}
                         <form onSubmit={guradarDatos}>
                             <div className="card card-body">
 
@@ -240,7 +268,7 @@ const Home = ({correoUsuario,idusario}) => {
                             onClick={()=>{setIdToUpdate('');setProducto({...valorInicial})}}
                         >
                                    
-                            { idToUpdate === '' ? '' : " Cancelar actualización"}
+                            { idToUpdate === '' ? '' : "Cancelar actualización"}
 
                         </button>
 
@@ -252,6 +280,7 @@ const Home = ({correoUsuario,idusario}) => {
 
                         <div className="container card">
                             <div className="card-body " style={mystyle}>
+                                {listaProductos.length == 0 ? <div> Agrega un producto </div> : '' }
                                 {
                                     listaProductos.map(product => (
                                         <div key={product.id}>
@@ -273,14 +302,10 @@ const Home = ({correoUsuario,idusario}) => {
                                         </div>
                                     ))
                                 }
-
                             </div>
-
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </div>
     )

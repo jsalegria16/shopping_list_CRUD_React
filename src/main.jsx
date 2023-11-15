@@ -9,6 +9,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <GlobalProvider>
       <App />
     </GlobalProvider>
-    
   </React.StrictMode>,
 )
